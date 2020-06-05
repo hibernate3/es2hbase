@@ -1,12 +1,22 @@
-package com.hdb.es;
+package com.hdb.es.util;
 
 import org.apache.http.HttpHost;
+import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.PrefixQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -97,6 +107,97 @@ public class ESUtil {
             list.add(next.getSourceAsString());
         }
         return list;
+    }
+
+    /**
+     * 插入Document
+     * */
+    public static void createDoc(String index, String jsonData) {
+        RestHighLevelClient client = getRestHighLevelClient();
+        IndexRequest request = new IndexRequest(index);
+        request.source(jsonData, XContentType.JSON);
+
+        client.indexAsync(request, RequestOptions.DEFAULT, new ActionListener<IndexResponse>() {
+            public void onResponse(IndexResponse indexResponse) {
+            }
+
+            public void onFailure(Exception e) {
+            }
+        });
+    }
+
+    /**
+     * 批量创建文档
+     * */
+    public void bulkCreateDoc(String index, List<String> jsonDataList) {
+        RestHighLevelClient client = getRestHighLevelClient();
+        BulkRequest bulkRequest = new BulkRequest();
+
+        for (String jsonData: jsonDataList) {
+            bulkRequest.add(new IndexRequest(index).source(jsonData, XContentType.JSON));
+        }
+
+        client.bulkAsync(bulkRequest, RequestOptions.DEFAULT, new ActionListener<BulkResponse>() {
+            public void onResponse(BulkResponse bulkItemResponses) {
+            }
+
+            public void onFailure(Exception e) {
+            }
+        });
+    }
+
+    /**
+     * 修改文档
+     * */
+    public static void updateDoc(String index, String id, Map<String, Object> map) {
+        RestHighLevelClient client = getRestHighLevelClient();
+        UpdateRequest request = new UpdateRequest(index, id);
+
+        request.doc(map);
+
+        client.updateAsync(request, RequestOptions.DEFAULT, new ActionListener<UpdateResponse>() {
+            public void onResponse(UpdateResponse updateResponse) {
+            }
+
+            public void onFailure(Exception e) {
+            }
+        });
+    }
+
+    /**
+     * 删除文档
+     * */
+    public static void deleteDoc(String index, String id) {
+        RestHighLevelClient client = getRestHighLevelClient();
+        DeleteRequest request = new DeleteRequest(index, id);
+
+        client.deleteAsync(request, RequestOptions.DEFAULT, new ActionListener<DeleteResponse>() {
+            public void onResponse(DeleteResponse deleteResponse) {
+            }
+
+            public void onFailure(Exception e) {
+            }
+        });
+    }
+
+    /**
+     * 批量删除文档
+     * */
+    public static void bulkDeleteDoc(String index, List<String> ids) {
+        RestHighLevelClient client = getRestHighLevelClient();
+        BulkRequest bulkRequest = new BulkRequest();
+
+        for (String id: ids) {
+            bulkRequest.add(new DeleteRequest(index, id));
+        }
+
+        client.bulkAsync(bulkRequest, RequestOptions.DEFAULT, new ActionListener<BulkResponse>() {
+            public void onResponse(BulkResponse bulkItemResponses) {
+            }
+
+            public void onFailure(Exception e) {
+            }
+        });
     }
 
     /**
