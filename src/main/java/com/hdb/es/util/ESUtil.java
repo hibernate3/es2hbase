@@ -32,18 +32,20 @@ public class ESUtil {
     private static final int ES_PORT = 9200;
     private static final String ES_NAME = "hdb_share_building_details_index";
 
+    private static final RestHighLevelClient mClient = getRestHighLevelClient();
+
     public static void main(String[] args) {
-        Map map = new HashMap();
-        map.put("wx_open_id", "01");
-        map.put("wx_union_id", "01");
-
-        List<String> list = multiSearch(map, 10);
-
-        System.out.println(list.size());
-
-        for (String value: list) {
-            System.out.println(value);
-        }
+//        Map map = new HashMap();
+//        map.put("wx_open_id", "01");
+//        map.put("wx_union_id", "01");
+//
+//        List<String> list = multiSearch(map, 10);
+//
+//        System.out.println(list.size());
+//
+//        for (String value: list) {
+//            System.out.println(value);
+//        }
     }
 
     /**
@@ -114,11 +116,10 @@ public class ESUtil {
      * 自动生成id
      * */
     public static void createDoc(String index, String jsonData) {
-        RestHighLevelClient client = getRestHighLevelClient();
         IndexRequest request = new IndexRequest(index);
         request.source(jsonData, XContentType.JSON);
 
-        client.indexAsync(request, RequestOptions.DEFAULT, new ActionListener<IndexResponse>() {
+        mClient.indexAsync(request, RequestOptions.DEFAULT, new ActionListener<IndexResponse>() {
             public void onResponse(IndexResponse indexResponse) {
             }
 
@@ -132,11 +133,10 @@ public class ESUtil {
      * 手动生成id
      * */
     public static void createDoc(String index, String jsonData, String id) {
-        RestHighLevelClient client = getRestHighLevelClient();
         IndexRequest request = (new IndexRequest(index)).id(id);
         request.source(jsonData, XContentType.JSON);
 
-        client.indexAsync(request, RequestOptions.DEFAULT, new ActionListener<IndexResponse>() {
+        mClient.indexAsync(request, RequestOptions.DEFAULT, new ActionListener<IndexResponse>() {
             public void onResponse(IndexResponse indexResponse) {
             }
 
@@ -149,14 +149,13 @@ public class ESUtil {
      * 批量创建文档
      * */
     public void bulkCreateDoc(String index, List<String> jsonDataList) {
-        RestHighLevelClient client = getRestHighLevelClient();
         BulkRequest bulkRequest = new BulkRequest();
 
         for (String jsonData: jsonDataList) {
             bulkRequest.add(new IndexRequest(index).source(jsonData, XContentType.JSON));
         }
 
-        client.bulkAsync(bulkRequest, RequestOptions.DEFAULT, new ActionListener<BulkResponse>() {
+        mClient.bulkAsync(bulkRequest, RequestOptions.DEFAULT, new ActionListener<BulkResponse>() {
             public void onResponse(BulkResponse bulkItemResponses) {
             }
 
@@ -169,12 +168,11 @@ public class ESUtil {
      * 修改文档
      * */
     public static void updateDoc(String index, String id, Map<String, Object> map) {
-        RestHighLevelClient client = getRestHighLevelClient();
         UpdateRequest request = new UpdateRequest(index, id);
 
         request.doc(map);
 
-        client.updateAsync(request, RequestOptions.DEFAULT, new ActionListener<UpdateResponse>() {
+        mClient.updateAsync(request, RequestOptions.DEFAULT, new ActionListener<UpdateResponse>() {
             public void onResponse(UpdateResponse updateResponse) {
             }
 
@@ -187,10 +185,9 @@ public class ESUtil {
      * 删除文档
      * */
     public static void deleteDoc(String index, String id) {
-        RestHighLevelClient client = getRestHighLevelClient();
         DeleteRequest request = new DeleteRequest(index, id);
 
-        client.deleteAsync(request, RequestOptions.DEFAULT, new ActionListener<DeleteResponse>() {
+        mClient.deleteAsync(request, RequestOptions.DEFAULT, new ActionListener<DeleteResponse>() {
             public void onResponse(DeleteResponse deleteResponse) {
             }
 
@@ -203,14 +200,13 @@ public class ESUtil {
      * 批量删除文档
      * */
     public static void bulkDeleteDoc(String index, List<String> ids) {
-        RestHighLevelClient client = getRestHighLevelClient();
         BulkRequest bulkRequest = new BulkRequest();
 
         for (String id: ids) {
             bulkRequest.add(new DeleteRequest(index, id));
         }
 
-        client.bulkAsync(bulkRequest, RequestOptions.DEFAULT, new ActionListener<BulkResponse>() {
+        mClient.bulkAsync(bulkRequest, RequestOptions.DEFAULT, new ActionListener<BulkResponse>() {
             public void onResponse(BulkResponse bulkItemResponses) {
             }
 
@@ -235,10 +231,9 @@ public class ESUtil {
      * @throws IOException
      */
     public static boolean delete() throws IOException {
-        RestHighLevelClient client = getRestHighLevelClient();
         DeleteIndexRequest request =
                 new DeleteIndexRequest(ES_NAME);
-        client.indices().delete(request, RequestOptions.DEFAULT);
+        mClient.indices().delete(request, RequestOptions.DEFAULT);
         return true;
     }
 

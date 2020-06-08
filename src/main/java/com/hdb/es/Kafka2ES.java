@@ -24,7 +24,7 @@ public class Kafka2ES {
                 String namespace = jsonObject.get("namespace").getAsString();//HBase namespace
                 String tableName = jsonObject.get("tableName").getAsString();//HBase table
 
-                if (namespace.equals("HDB") && tableName.equals("SHARE_BUILDING_DETAILS")) {
+                if (namespace.equals("HDB") && tableName.equals("HDB:SHARE_BUILDING_DETAILS")) {
                     if (type.equals("put")) {//新增或者更新操作
                         String rowKey = jsonObject.get("rowKey").getAsString();
                         JsonArray columnFamilies = jsonObject.get("columnFamilies").getAsJsonArray();
@@ -34,11 +34,11 @@ public class Kafka2ES {
                             JsonObject cfJson = columnFamilies.get(i).getAsJsonObject();
 
                             if (cfJson.get("_0").getAsString().equals("INFO")) {
-                                String brokerId = cfJson.get("BROKER_ID").getAsString();
-                                String buildingId = cfJson.get("BUILDING_ID").getAsString();
-                                String wxOpenId = cfJson.get("WX_OPEN_ID").getAsString();
-                                String wxUnionId = cfJson.get("WX_UNION_ID").getAsString();
-                                Long timestamp = Long.parseLong(cfJson.get("TIMESTAMP").getAsString());
+                                String brokerId = cfJson.get("BROKER_ID")==null?"":cfJson.get("BROKER_ID").getAsString();
+                                String buildingId = cfJson.get("BUILDING_ID")==null?"":cfJson.get("BUILDING_ID").getAsString();
+                                String wxOpenId = cfJson.get("WX_OPEN_ID")==null?"":cfJson.get("WX_OPEN_ID").getAsString();
+                                String wxUnionId = cfJson.get("WX_UNION_ID")==null?"":cfJson.get("WX_UNION_ID").getAsString();
+                                Long timestamp = Long.parseLong(cfJson.get("TIMESTAMP")==null?"0":cfJson.get("TIMESTAMP").getAsString());
 
                                 //时间转换
                                 Date dat = new Date(timestamp);
@@ -57,6 +57,8 @@ public class Kafka2ES {
                                 jsonMap.put("date_time", dateTime);
 
                                 String esDocJson = new Gson().toJson(jsonMap);
+
+                                System.out.println(esDocJson);
 
                                 ESUtil.createDoc("hdb_share_building_details_index", esDocJson, rowKey);
                             }
