@@ -111,10 +111,29 @@ public class ESUtil {
 
     /**
      * 插入Document
+     * 自动生成id
      * */
     public static void createDoc(String index, String jsonData) {
         RestHighLevelClient client = getRestHighLevelClient();
         IndexRequest request = new IndexRequest(index);
+        request.source(jsonData, XContentType.JSON);
+
+        client.indexAsync(request, RequestOptions.DEFAULT, new ActionListener<IndexResponse>() {
+            public void onResponse(IndexResponse indexResponse) {
+            }
+
+            public void onFailure(Exception e) {
+            }
+        });
+    }
+
+    /**
+     * 插入Document
+     * 手动生成id
+     * */
+    public static void createDoc(String index, String jsonData, String id) {
+        RestHighLevelClient client = getRestHighLevelClient();
+        IndexRequest request = (new IndexRequest(index)).id(id);
         request.source(jsonData, XContentType.JSON);
 
         client.indexAsync(request, RequestOptions.DEFAULT, new ActionListener<IndexResponse>() {
