@@ -41,9 +41,9 @@ public class Kafka2ES {
                                 Long timestamp = Long.parseLong(cfJson.get("TIMESTAMP")==null?"0":cfJson.get("TIMESTAMP").getAsString());
 
                                 //时间转换
-                                Date dat = new Date(timestamp);
+                                Date date = new Date(timestamp);
                                 GregorianCalendar gc = new GregorianCalendar();
-                                gc.setTime(dat);
+                                gc.setTime(date);
                                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
                                 String dateTime = format.format(gc.getTime());
 

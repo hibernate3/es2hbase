@@ -35,17 +35,18 @@ public class ESUtil {
     private static final RestHighLevelClient mClient = getRestHighLevelClient();
 
     public static void main(String[] args) {
-//        Map map = new HashMap();
-//        map.put("wx_open_id", "01");
-//        map.put("wx_union_id", "01");
-//
+        Map map = new HashMap();
+        map.put("wx_open_id", "01");
+        map.put("wx_union_id", "01");
+
 //        List<String> list = multiSearch(map, 10);
-//
-//        System.out.println(list.size());
-//
-//        for (String value: list) {
-//            System.out.println(value);
-//        }
+        List<String> list = multiRangeSearch(map, "date_time", "2020-06-01 00:00:00", "2020-06-04 00:00:00", 10);
+
+        System.out.println(list.size());
+
+        for (String value: list) {
+            System.out.println(value);
+        }
     }
 
     /**
@@ -63,6 +64,33 @@ public class ESUtil {
             boolQueryBuilder.must(QueryBuilders
                     .matchQuery(entry.getKey(), entry.getValue()));
         }
+
+        // boolQueryBuilder生效
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(boolQueryBuilder);
+        searchSourceBuilder.size(length);
+
+        // 其中listSearchResult是自己编写的方法，以供多中查询方式使用。
+        return listSearchResult(searchSourceBuilder);
+    }
+
+    /**
+     * 多条件范围查询
+     * @param mustMap
+     * @param length
+     * @return
+     */
+    public static List<String> multiRangeSearch(Map<String,Object> mustMap, String rangeField, String startRange, String endRange, int length) {
+        // 根据多个条件 生成 boolQueryBuilder
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+
+        // 循环添加多个条件
+        for (Map.Entry<String, Object> entry : mustMap.entrySet()) {
+            boolQueryBuilder.must(QueryBuilders
+                    .matchQuery(entry.getKey(), entry.getValue()));
+        }
+
+        boolQueryBuilder.must(QueryBuilders.rangeQuery(rangeField).gt(startRange).lt(endRange));
 
         // boolQueryBuilder生效
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
