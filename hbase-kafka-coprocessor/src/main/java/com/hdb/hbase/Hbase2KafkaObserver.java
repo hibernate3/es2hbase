@@ -76,7 +76,7 @@ public class Hbase2KafkaObserver implements RegionObserver, RegionCoprocessor {
 
                 String msg = gson.toJson(jsonMap);
 
-                KafkaUtil.sendMsg("10.101.40.206:9092,10.101.40.207:9092,10.101.40.208:9092", "hbase2kafka", msg);
+                KafkaUtil.sendMsg("10.71.81.222:9092,10.71.81.198:9092,10.71.81.247:9092", "hbase2kafka", msg);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -106,6 +106,6 @@ public class Hbase2KafkaObserver implements RegionObserver, RegionCoprocessor {
 
         String msg = gson.toJson(jsonMap);
 
-        KafkaUtil.sendMsg("10.101.40.206:9092,10.101.40.207:9092,10.101.40.208:9092", "hbase2kafka", msg);
+        KafkaUtil.sendMsg("10.71.81.222:9092,10.71.81.198:9092,10.71.81.247:9092", "hbase2kafka", msg);
     }
 }
